@@ -1,0 +1,2 @@
+pytoml (0.1.10)
+GitPython (2.0.6)

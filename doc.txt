@@ -1,0 +1,2 @@
+1. http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+2. http://stackoverflow.com/questions/2481269/how-to-make-a-simple-c-makefile
