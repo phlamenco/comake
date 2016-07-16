@@ -1,6 +1,7 @@
 #encoding=utf-8
 
 import pytoml as toml
+from jinja2 import Template
 
 MAKEFILE = """
 # define the C compiler to use
@@ -99,6 +100,7 @@ $(DEPDIR)/%.d: ;
 class GenMakefile:
     def __init__(self):
         self.comake = None
+        self.template = Template(MAKEFILE)
 
     def setComake(self, comake):
         self.comake = comake
