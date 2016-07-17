@@ -32,20 +32,19 @@ library_path = ". ./lib"
 
 [dependency]
 
-[output]
+[[output]]
 sources = "*.cc *.cpp"
 headers = "*.h"
-libs =
+libs = ""
+bin = "helloworld"
+so = ""
+a = ""
 
-[output.release]
-bin = helloworld
-[output.debug]
-# 默认会加上-g,去掉所有的-O
-so =
-a =
-
+[shell]
+before = "mkdir -p output/include && mkdir -p output/lib && mkdir -p output/bin"
+after = "cp -r bin/* output/bin && cp -r include/* output/include"
 """
-import os
+import os, codecs
 
 
 def GenComake():
@@ -54,5 +53,5 @@ def GenComake():
         if confirm is not 'y':
             print "exit without generating COMAKE"
             return
-    with open('COMAKE', 'w') as f:
+    with codecs.open('COMAKE', 'w', 'utf-8') as f:
         f.write(COMAKE)

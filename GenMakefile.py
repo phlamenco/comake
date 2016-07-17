@@ -5,14 +5,14 @@ from jinja2 import Template
 
 MAKEFILE = """
 # define the C compiler to use
-CC = {{cc}}
+CC = {{CC}}
 
-CXX = {{cxx}}
+CXX = {{CXX}}
 
 # define any compile-time flags
-CFLAGS = {{c_compile_flags}}
+CFLAGS = {{c_pre_flags}} {{c_compile_flags}} {{opt_level}}
 
-CPPFLAGS = {{cxx_compile_flags}}
+CPPFLAGS = {{c_pre_flags}} {{cxx_compile_flags}} {{opt_level}}
 
 # define any directories containing header files other than /usr/include
 #
@@ -29,7 +29,7 @@ LFLAGS = {{library_path}}
 LIBS = {{ld_flags}}
 
 # define the C source files
-SRCS = {{sources}}
+#SRCS = {{sources}}
 
 # define the C object files
 #
@@ -39,7 +39,13 @@ SRCS = {{sources}}
 # Below we are replacing the suffix .c of all words in the macro SRCS
 # with the .o suffix
 #
-OBJS = $(SRCS:.cpp=.o)
+#OBJS = $(SRCS:.cpp=.o)
+
+{% for index, out in enumerate(output) %}
+SRCS_{{index}} = {{out["sources"]}}
+OBJS_{{index}} = $(SRCS:.cpp=.o)
+BINS_{{index}} = {{out["bin"]}}
+{% endfor %}
 
 # define the executable file
 MAIN = {{binary}}
@@ -54,6 +60,7 @@ MAIN = {{binary}}
 
 all:    $(MAIN)
     @echo  Simple compiler named main has been compiled
+all:
 
 $(MAIN): $(OBJS)
     $(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
@@ -94,9 +101,10 @@ POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 $(DEPDIR)/%.d: ;
 .PRECIOUS: $(DEPDIR)/%.d
 
--include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SRCS)))
+#-include $(patsubst %,$(DEPDIR)/%.d,$(basename $(SRCS)))
+-include $(patsubst %,$(DEPDIR)/%.d,$(basename {{total_sources}}))
 """
-
+# TODO the total_sources may be a wrong use above
 class GenMakefile:
     def __init__(self):
         self.comake = None
@@ -104,6 +112,9 @@ class GenMakefile:
 
     def setComake(self, comake):
         self.comake = comake
+
+    def generate(self):
+        self.template.render(self.comake)
 
 
 
