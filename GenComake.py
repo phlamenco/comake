@@ -1,9 +1,6 @@
 #encoding=utf-8
 
-COMAKE = u"""
-project_root = ""
-
-[configure]
+COMAKE = u"""project_root = ""
 
 CC = "gcc"
 

@@ -41,14 +41,14 @@ LIBS = {{ld_flags}}
 #
 #OBJS = $(SRCS:.cpp=.o)
 
-{% for index, out in enumerate(output) %}
-SRCS_{{index}} = {{out["sources"]}}
-OBJS_{{index}} = $(SRCS:.cpp=.o)
-BINS_{{index}} = {{out["bin"]}}
+{% for out in output %}
+SRCS_{{loop.index0}} = {{out["sources"]}}
+OBJS_{{loop.index0}} = $(SRCS_{{loop.index0}}:.cpp=.o)
+BINS_{{loop.index0}} = {{out["bin"]}}
 {% endfor %}
 
 # define the executable file
-MAIN = {{binary}}
+# MAIN = {{binary}}
 
 #
 # The following part of the makefile is generic; it can be used to
@@ -58,22 +58,27 @@ MAIN = {{binary}}
 
 .PHONY: clean
 
-all:    $(MAIN)
-    @echo  Simple compiler named main has been compiled
-all:
+all:    {% for _ in output %}$(BINS_{{loop.index0}}) {% endfor %}
+\t@echo  Simple compiler named main has been compiled
 
-$(MAIN): $(OBJS)
-    $(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+{% for out in output %}
+$(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
+\t$(CXX) $(CFLAGS) $(INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS)
+{% endfor %}
+
+
+#$(MAIN): $(OBJS)
+#    $(CXX) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file)
 # (see the gnu make manual section about automatic variables)
 .c.o:
-    $(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+\t$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-    $(RM) *.o *~ $(MAIN)
+\t$(RM) *.o *~ {% for _ in output %}$(BINS_{{loop.index0}}) {% endfor %}
 
 DEPDIR := .comake/dep
 $(shell mkdir -p $(DEPDIR) >/dev/null)
@@ -85,18 +90,18 @@ POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
 
 %.o : %.c
 %.o : %.c $(DEPDIR)/%.d
-    $(COMPILE.c) $(OUTPUT_OPTION) $<
-    $(POSTCOMPILE)
+\t$(COMPILE.c) $(OUTPUT_OPTION) $<
+\t$(POSTCOMPILE)
 
 %.o : %.cc
 %.o : %.cc $(DEPDIR)/%.d
-    $(COMPILE.cc) $(OUTPUT_OPTION) $<
-    $(POSTCOMPILE)
+\t$(COMPILE.cc) $(OUTPUT_OPTION) $<
+\t$(POSTCOMPILE)
 
 %.o : %.cxx
 %.o : %.cxx $(DEPDIR)/%.d
-    $(COMPILE.cc) $(OUTPUT_OPTION) $<
-    $(POSTCOMPILE)
+\t$(COMPILE.cc) $(OUTPUT_OPTION) $<
+\t$(POSTCOMPILE)
 
 $(DEPDIR)/%.d: ;
 .PRECIOUS: $(DEPDIR)/%.d
@@ -114,7 +119,8 @@ class GenMakefile:
         self.comake = comake
 
     def generate(self):
-        self.template.render(self.comake)
+        with open('Makefile', 'w') as f:
+            f.write(self.template.render(self.comake))
 
 
 

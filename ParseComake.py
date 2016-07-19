@@ -9,17 +9,21 @@ def Parse():
     with codecs.open('COMAKE', 'r', 'utf-8') as f:
         comake = toml.load(f)
     size = len(comake['output'])
-    sources_set = set()
-    headers_set = set()
+
+    total_sources = set()
+    total_headers = set()
     for i in range(size):
-        comake['output'][i]['sources'] = _parsePath(comake['output'][i]['sources'])
-        for source in comake['output'][i]['sources']:
-            sources_set.add(source)
-        for header in comake['output'][i]['headers']:
-            headers_set.add(header)
-        comake['output'][i]['headers'] = _parsePath(comake['output'][i]['headers'])
-    comake['total_sources'] = list(sources_set)
-    comake['total_headers'] = list(headers_set)
+        sources_set = _parsePath(comake['output'][i]['sources'])
+        comake['output'][i]['sources'] = ' '.join(sources_set)
+        headers_set = _parsePath(comake['output'][i]['headers'])
+        comake['output'][i]['headers'] = ' '.join(headers_set)
+        total_sources.update(sources_set)
+        total_headers.update(headers_set)
+    comake['total_sources'] = ' '.join(total_sources)
+    comake['total_headers'] = ' '.join(total_headers)
+
+    comake['include_path'] = ' '.join(['-I' + s for s in comake['include_path'].split()])
+    comake['library_path'] = ' '.join(['-I' + s for s in comake['library_path'].split()])
     return comake
 
 
@@ -29,11 +33,11 @@ def _validateComake(comake):
 
 
 def _parsePath(line):
-    res = []
+    res = set()
     for token in line.split():
         if '*' in token:
             for path in glob.glob(token.strip()):
-                res.append(path)
+                res.add(path)
         else:
-            res.append(token)
+            res.add(token)
     return res
