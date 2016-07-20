@@ -121,8 +121,9 @@ class GenMakefile:
         self.comake = comake
 
     def generate(self):
-        with open('Makefile', 'w') as f:
-            f.write(self.template.render(self.comake))
+        if self.comake['use_local_makefile'] != 0:
+            with open('Makefile', 'w') as f:
+                f.write(self.template.render(self.comake))
 
 
 

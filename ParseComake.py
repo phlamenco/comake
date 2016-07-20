@@ -30,6 +30,8 @@ class ComakeParser:
         comake['include_path'] = ' '.join(['-I' + s for s in comake['include_path'].split()])
         comake['library_path'] = ' '.join(['-L' + s for s in comake['library_path'].split()])
         self.comake = comake
+        if 'use_local_makefile' not in self.comake.keys():
+            self.comake['use_local_makefile'] = 0
         return comake
 
     def getComake(self):
