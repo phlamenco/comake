@@ -11,8 +11,8 @@ class ComakeParser:
         self.total_sources = set()
         self.total_headers = set()
 
-    def Parse(self):
-        with codecs.open('COMAKE', 'r', 'utf-8') as f:
+    def Parse(self, path = 'COMAKE'):
+        with codecs.open(path, 'r', 'utf-8') as f:
             comake = toml.load(f)
         size = len(comake['output'])
 

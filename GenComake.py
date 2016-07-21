@@ -27,7 +27,12 @@ include_path = ". ./include"
 # 搜索库文件路径
 library_path = ". ./lib"
 
-[dependency]
+[[dependency]]
+uri = "https://github.com/avakar/pytoml.git"
+tag = "v0.1.7"
+[[dependency]]
+uri = ""
+tag = ""
 
 [[output]]
 sources = "*.cc *.cpp"
