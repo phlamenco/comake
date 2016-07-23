@@ -17,6 +17,8 @@ CPPFLAGS = {{c_pre_flags}} {{cxx_compile_flags}} {{opt_level}}
 #
 INCLUDES = {{include_path}}
 
+DEP_INCLUDES = {{dep_include_path}}
+
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
@@ -26,6 +28,8 @@ LFLAGS = {{library_path}}
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname
 #   option, something like (this will link in libmylib.so and libm.so:
 LIBS = {{ld_flags}}
+
+DEP_LIBS = {{dep_library_path}}
 
 # define the C source files
 #SRCS = {{sources}}
@@ -80,7 +84,7 @@ all:    {% for out in output %}$(BINS_{{loop.index0}}) {% if out["a"] %} {{out["
 
 {% for out in output %}
 $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
-\t$(CXX) $(CFLAGS) $(INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS)
+\t$(CXX) $(CFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS) $(DEP_LIBS)
 {% if out["a"] %}
 {{out["a"]}} : $(OBJS_{{loop.index0}})
 \tar rcs $@ $^

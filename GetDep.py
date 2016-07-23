@@ -21,6 +21,7 @@ class DepFetcher:
         self.dep_set = set()
         self.thread = None
 
+
     def worker(self):
         while True:
             try:
@@ -50,10 +51,11 @@ class DepFetcher:
     def getOneRepo(self, dep):
         repo = None
         if len(dep["uri"]) == 0:
-            return
+            return {}
         url = urlparse(dep["uri"])
         if url == "file":
-            pass
+            #TODO
+            return {}
         else:
             local_path = [self.root, url.netloc]
             local_path.extend([x for x in url.path.split('/') if x])

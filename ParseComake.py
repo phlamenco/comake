@@ -2,8 +2,11 @@
 
 import codecs
 import glob
-
+from urlparse import urlparse
+from os import path, makedirs
 import pytoml as toml
+
+from utils import RedIt
 
 
 class ComakeParser:
@@ -11,6 +14,8 @@ class ComakeParser:
         self.comake = {}
         self.total_sources = set()
         self.total_headers = set()
+        self.dep_include_list = []
+        self.dep_library_list = []
 
     def Parse(self, path = 'COMAKE'):
         with codecs.open(path, 'r', 'utf-8') as f:
@@ -36,7 +41,32 @@ class ComakeParser:
         if 'use_local_makefile' not in self.comake.keys():
             self.comake['use_local_makefile'] = 0
 
+        self._parseDepPath()
+
         return comake
+
+    def _parseDepPath(self):
+        deps = self.comake['dependency']
+        for dep in deps:
+            if len(dep["uri"]) == 0:
+                continue
+            url = urlparse(dep["uri"])
+            if url == "file":
+                pass
+            else:
+                local_path = [self.comake['repo_root'], url.netloc]
+                local_path.extend([x for x in url.path.split('/') if x])
+                local_path[-1] = local_path[-1].rstrip('.git')
+                repo_path = path.sep.join(local_path)
+                if path.isdir(repo_path):
+                    self.dep_include_list.append(path.sep.join([repo_path, 'output', 'include']))
+                    self.dep_library_list.append(path.sep.join([repo_path, 'output', 'library']))
+
+                else:
+                    print RedIt("can't find repo path " + repo_path)
+        # add dep include and library path into comake
+        self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
+        self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])
 
     def getComake(self):
         return self.comake
