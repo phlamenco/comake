@@ -1,6 +1,7 @@
 #encoding=utf-8
 
-COMAKE = u"""project_root = ""
+COMAKE = u"""project = "helloworld"
+repo_root = "."
 
 CC = "gcc"
 
@@ -22,10 +23,10 @@ opt_level = "-O3"
 ld_flags = "-lpthread"
 
 # 搜索头文件路径
-include_path = ". ./include"
+include_path = "."
 
 # 搜索库文件路径
-library_path = ". ./lib"
+library_path = "."
 
 [[dependency]]
 uri = "https://github.com/avakar/pytoml.git"
@@ -42,9 +43,9 @@ bin = "helloworld"
 so = ""
 a = ""
 
-[shell]
-before = "mkdir -p output/include && mkdir -p output/lib && mkdir -p output/bin"
-after = "cp -r bin/* output/bin && cp -r include/* output/include"
+[cmd]
+before = ""
+after = ""
 """
 import os, codecs
 
@@ -52,7 +53,7 @@ import os, codecs
 def GenComake():
     if os.path.exists('COMAKE'):
         confirm = raw_input("Overwrite an exist COMAKE file, y/[n]:")
-        if confirm is not 'y':
+        if confirm.strip() != 'y':
             print "exit without generating COMAKE"
             return
     with codecs.open('COMAKE', 'w', 'utf-8') as f:

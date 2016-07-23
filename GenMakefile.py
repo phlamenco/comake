@@ -3,8 +3,7 @@
 import pytoml as toml
 from jinja2 import Template
 
-MAKEFILE = """
-# define the C compiler to use
+MAKEFILE = """# define the C compiler to use
 CC = {{CC}}
 
 CXX = {{CXX}}
@@ -55,17 +54,38 @@ BINS_{{loop.index0}} = {{out["bin"]}}
 # build any executable just by changing the definitions above and by
 # deleting dependencies appended to the file from 'make depend'
 #
+{% if cmd["before"] %}
+before_cmds := $(shell {{cmd["before"]}})
+{% endif %}
 
 .PHONY: clean
 
-all:    {% for _ in output %}$(BINS_{{loop.index0}}) {% endfor %}
-\t@echo  Simple compiler named main has been compiled
+all:    {% for out in output %}$(BINS_{{loop.index0}}) {% if out["a"] %} {{out["a"]}} {%endif%} {% endfor %}
+\t$(shell mkdir -p output/include/{{project}} && \
+          mkdir -p output/lib && \
+          mkdir -p output/bin && \
+          find . -name "*.h" -o -name '*.hpp' -type f | xargs -I {} cp {} output/include/{{project}} && \
+          find . -name "*.a" -o -name '*.so' -type f | xargs -I {} cp {} output/lib/ && \
+          {% for _ in output %} \
+          if [ -x $(BINS_{{loop.index0}}) ]; then mv $(BINS_{{loop.index0}}) output/bin/$(BINS_{{loop.index0}}); fi \
+          {% if not loop.last %} \
+              && \
+          {% endif %} \
+          {% endfor %} \
+          )
+{% if cmd["after"] %}
+\t$(shell {{cmd["after"]}})
+{% endif %}
+\t@echo {{project}} is compiled
 
 {% for out in output %}
 $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
 \t$(CXX) $(CFLAGS) $(INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS)
+{% if out["a"] %}
+{{out["a"]}} : $(OBJS_{{loop.index0}})
+\tar rcs $@ $^
+{% endif %}
 {% endfor %}
-
 
 #$(MAIN): $(OBJS)
 #    $(CXX) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
@@ -79,6 +99,8 @@ $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
 
 clean:
 \t$(RM) *.o *~ {% for _ in output %}$(BINS_{{loop.index0}}) {% endfor %}
+\t$(RM) -r output/
+\t$(RM) *.a *.so
 
 DEPDIR := .comake/dep
 $(shell mkdir -p $(DEPDIR) >/dev/null)
@@ -121,7 +143,7 @@ class GenMakefile:
         self.comake = comake
 
     def generate(self):
-        if self.comake['use_local_makefile'] != 0:
+        if self.comake['use_local_makefile'] == 0:
             with open('Makefile', 'w') as f:
                 f.write(self.template.render(self.comake))
 
