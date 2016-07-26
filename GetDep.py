@@ -31,9 +31,7 @@ class DepFetcher:
                 break
             else:
                 if dep["uri"] not in self.dep_set:
-                    print GreenIt("start fetch {0}".format(dep["uri"]))
                     deps = self.getOneRepo(dep)
-                    print GreenIt("end fetch {}".format(dep["uri"]))
                     self.dep_set.add(dep["uri"])
                     for d in deps:
                         self.queue.put(d)
@@ -74,14 +72,15 @@ class DepFetcher:
                         tagRepo = repo.tags[dep['tag']]
                         repo.head.reference = tagRepo
                         repo.head.reset(index=True, working_tree=True)
+                    print GreenIt("{0} [{1}] {2} set success.".format(local_path[-1], dep['tag'], repo_path))
                 except IndexError:
                     # TODO pull master to get latest tag version
-                    print RedIt("can't find tag '{0}' in repo {1}".format(dep['tag'], repo_path))
+                    print RedIt("{0} [{1}] {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
 
             comake_file = path.sep.join([repo_path, 'COMAKE'])
             if path.exists(comake_file):
-                parser = ComakeParser(comake_file)
-                return parser.Parse()["dependency"]
+                parser = ComakeParser()
+                return parser.Parse(comake_file)["dependency"]
             else:
                 print RedIt("can't find COMAKE in repo " + repo_path)
                 return {}
