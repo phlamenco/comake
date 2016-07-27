@@ -3,13 +3,15 @@ from threading import Thread
 
 import git
 from git import Repo
-from urlparse import urlparse
 from os import path, makedirs
 from Queue import Queue, Empty
+import urlparse
+import urllib
 
 from ParseComake import ComakeParser
-from utils import RedIt, GreenIt
+from utils import RedIt, GreenIt, GetComake
 
+REPO_URL = 'https://raw.githubusercontent.com/boully/repo/master/'
 
 class DepFetcher:
     def __init__(self, comake):
@@ -72,17 +74,18 @@ class DepFetcher:
                         tagRepo = repo.tags[dep['tag']]
                         repo.head.reference = tagRepo
                         repo.head.reset(index=True, working_tree=True)
-                    print GreenIt("{0} [{1}] {2} set success.".format(local_path[-1], dep['tag'], repo_path))
+                    print GreenIt("[NOTICE]{0} ({1}) {2} set success.".format(local_path[-1], dep['tag'], repo_path))
                 except IndexError:
                     # TODO pull master to get latest tag version
-                    print RedIt("{0} [{1}] {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
+                    print RedIt("[NOTICE]{0} ({1}) {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
 
             comake_file = path.sep.join([repo_path, 'COMAKE'])
             if path.exists(comake_file):
                 parser = ComakeParser()
                 return parser.Parse(comake_file)["dependency"]
             else:
-                print RedIt("can't find COMAKE in repo " + repo_path)
+                comake_url = urlparse.urljoin(REPO_URL, "/".join(local_path[1:]))
+                GetComake(comake_url, comake_file)
                 return {}
 
 
