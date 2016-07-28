@@ -1,11 +1,10 @@
 #encoding=utf-8
 from threading import Thread
-
+from urlparse import urlparse, urljoin
 import git
 from git import Repo
 from os import path, makedirs
 from Queue import Queue, Empty
-import urlparse
 import urllib
 
 from ParseComake import ComakeParser
@@ -84,7 +83,7 @@ class DepFetcher:
                 parser = ComakeParser()
                 return parser.Parse(comake_file)["dependency"]
             else:
-                comake_url = urlparse.urljoin(REPO_URL, "/".join(local_path[1:]))
+                comake_url = urljoin(REPO_URL, "/".join(local_path[1:]))
                 GetComake(comake_url, comake_file)
                 return {}
 

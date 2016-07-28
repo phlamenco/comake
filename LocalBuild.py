@@ -1,3 +1,3 @@
 #encoding=utf-8
 
-#TODO build for cmake, autoconfig, and sole makefile
+#TODO build for cmake, autoconfig, and makefile

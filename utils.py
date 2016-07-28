@@ -32,6 +32,9 @@ def PullRepo(repo, path):
 def GetComake(comake_url, write_path):
     try:
         f = urllib.urlopen(comake_url)
+        if f.getcode() != 200:
+            print RedIt("[error]{} doesn't exist".format(comake_url))
+            return
         res = f.read()
     except Exception as e:
         print RedIt("[error]{} get failed".format(comake_url))
@@ -39,6 +42,7 @@ def GetComake(comake_url, write_path):
         with codecs.open(write_path, "w", "utf-8") as ff:
             ff.write(res)
         print GreenIt("[NOTICE]{} get success".format(comake_url))
+
 
 def CallCmd(cmd):
     p=subprocess.Popen('%s'%(cmd),
