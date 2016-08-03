@@ -32,10 +32,16 @@ class DepFetcher:
                 break
             else:
                 if dep["uri"] not in self.dep_set:
-                    deps = self.getOneRepo(dep)
-                    self.dep_set.add(dep["uri"])
-                    for d in deps:
-                        self.queue.put(d)
+                    try:
+                        deps = self.getOneRepo(dep)
+                    except Exception as e:
+                        print RedIt(e.message)
+                    else:
+                        for d in deps:
+                            if len(d["uri"]) == 0:
+                                continue
+                            self.dep_set.add(d["uri"])
+                            self.queue.put(d)
 
     def getRepo(self):
         for dep in self.comake["dependency"]:
@@ -78,15 +84,19 @@ class DepFetcher:
                     # TODO pull master to get latest tag version
                     print RedIt("[NOTICE]{0} ({1}) {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
 
+            if self.comake['use_local_makefile'] == 1:
+                return []
+
             comake_file = path.sep.join([repo_path, 'COMAKE'])
-            if path.exists(comake_file):
-                parser = ComakeParser()
-                return parser.Parse(comake_file)["dependency"]
-            else:
-                comake_url = urljoin(REPO_URL, "/".join(local_path[1:]))
+
+            if not path.exists(comake_file):
+                c_file = local_path[1:]
+                c_file.append('COMAKE')
+                comake_url = urljoin(REPO_URL, "/".join(c_file))
+                print "start fetching " + comake_url
                 GetComake(comake_url, comake_file)
-                return {}
 
-
-
-
+            parser = ComakeParser()
+            ret = parser.Parse(comake_file)["dependency"]
+            print GreenIt("[NOTICE]{0} parsed success.".format(comake_file))
+            return ret

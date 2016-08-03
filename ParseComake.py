@@ -6,6 +6,7 @@ from urlparse import urlparse
 from os import path, makedirs
 import pytoml as toml
 
+from ComakeException import InvalidComake
 from utils import RedIt
 
 
@@ -24,28 +25,29 @@ class ComakeParser:
                 comake = toml.load(f)
         except toml.TomlError as e:
             print RedIt("[ERROR] {} load failed".format(path))
+            raise InvalidComake("COMAKE has something wrong")
         else:
+            if 'output' in comake.keys():
+                size = len(comake['output'])
 
-            size = len(comake['output'])
+                for i in range(size):
+                    sources_set = _parsePath(comake['output'][i]['sources'])
+                    comake['output'][i]['sources'] = ' '.join(sources_set)
+                    headers_set = _parsePath(comake['output'][i]['headers'])
+                    comake['output'][i]['headers'] = ' '.join(headers_set)
+                    comake['output'][i]['a'] = comake['output'][i]['a'].strip()
+                    comake['output'][i]['so'] = comake['output'][i]['so'].strip()
+                    self.total_sources.update(sources_set)
+                    self.total_headers.update(headers_set)
 
-            for i in range(size):
-                sources_set = _parsePath(comake['output'][i]['sources'])
-                comake['output'][i]['sources'] = ' '.join(sources_set)
-                headers_set = _parsePath(comake['output'][i]['headers'])
-                comake['output'][i]['headers'] = ' '.join(headers_set)
-                comake['output'][i]['a'] = comake['output'][i]['a'].strip()
-                comake['output'][i]['so'] = comake['output'][i]['so'].strip()
-                self.total_sources.update(sources_set)
-                self.total_headers.update(headers_set)
+                comake['total_sources'] = ' '.join(self.total_sources)
+                comake['total_headers'] = ' '.join(self.total_headers)
 
-            comake['total_sources'] = ' '.join(self.total_sources)
-            comake['total_headers'] = ' '.join(self.total_headers)
-
-            comake['include_path'] = ' '.join(['-I' + s for s in comake['include_path'].split()])
-            comake['library_path'] = ' '.join(['-L' + s for s in comake['library_path'].split()])
-            self.comake = comake
-            if 'use_local_makefile' not in self.comake.keys():
-                self.comake['use_local_makefile'] = 0
+                comake['include_path'] = ' '.join(['-I' + s for s in comake['include_path'].split()])
+                comake['library_path'] = ' '.join(['-L' + s for s in comake['library_path'].split()])
+                self.comake = comake
+                if 'use_local_makefile' not in self.comake.keys():
+                    self.comake['use_local_makefile'] = 0
 
             self._parseDepPath()
 
@@ -68,7 +70,7 @@ class ComakeParser:
                     makedirs(repo_path)
                 self.repo_path_dict[repo_path] = dep['uri']
                 self.dep_include_list.append(path.sep.join([repo_path, 'output', 'include']))
-                self.dep_library_list.append(path.sep.join([repo_path, 'output', 'library']))
+                self.dep_library_list.append(path.sep.join([repo_path, 'output', 'lib']))
         # add dep include and library path into comake
         self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
         self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])

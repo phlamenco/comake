@@ -39,6 +39,7 @@ def GetComake(comake_url, write_path):
     except Exception as e:
         print RedIt("[error]{} get failed".format(comake_url))
     else:
+        print "start writing COMAKE " + write_path
         with codecs.open(write_path, "w", "utf-8") as ff:
             ff.write(res)
         print GreenIt("[NOTICE]{} get success".format(comake_url))

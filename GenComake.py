@@ -1,4 +1,5 @@
 #encoding=utf-8
+from utils import RedIt
 
 COMAKE = u"""project = "helloworld"
 repo_root = "."
@@ -29,8 +30,8 @@ include_path = "."
 library_path = "."
 
 [[dependency]]
-uri = "https://github.com/avakar/pytoml.git"
-tag = "v0.1.7"
+uri = "https://github.com/gflags/gflags"
+tag = "v2.1.2"
 [[dependency]]
 uri = ""
 tag = ""
@@ -52,7 +53,7 @@ import os, codecs
 
 def GenComake():
     if os.path.exists('COMAKE'):
-        confirm = raw_input("Overwrite an exist COMAKE file, y/[n]:")
+        confirm = raw_input(RedIt("Overwrite an exist COMAKE file, y/[n]:"))
         if confirm.strip() != 'y':
             print "exit without generating COMAKE"
             return

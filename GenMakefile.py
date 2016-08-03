@@ -64,16 +64,15 @@ before_cmds := $(shell {{cmd["before"]}})
 
 .PHONY: clean
 
-all:    {% for out in output %}$(BINS_{{loop.index0}}) {% if out["a"] %} {{out["a"]}} {%endif%} {% endfor %}
+all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% endif %} {% if out["a"] %} {{out["a"]}} {%endif%} {% endfor %}
 \t$(shell mkdir -p output/include/{{project}} && \
           mkdir -p output/lib && \
           mkdir -p output/bin && \
           find . -name "*.h" -o -name '*.hpp' -type f | xargs -I {} cp {} output/include/{{project}} && \
-          find . -name "*.a" -o -name '*.so' -type f | xargs -I {} cp {} output/lib/ && \
-          {% for _ in output %} \
-          if [ -x $(BINS_{{loop.index0}}) ]; then mv $(BINS_{{loop.index0}}) output/bin/$(BINS_{{loop.index0}}); fi \
-          {% if not loop.last %} \
-              && \
+          find . -name "*.a" -o -name '*.so' -type f | xargs -I {} cp {} output/lib/ \
+          {% for out in output %} \
+          {% if out["bin"] %} \
+          && if [ -x $(BINS_{{loop.index0}}) ]; then mv $(BINS_{{loop.index0}}) output/bin/$(BINS_{{loop.index0}}); fi \
           {% endif %} \
           {% endfor %} \
           )
@@ -83,8 +82,10 @@ all:    {% for out in output %}$(BINS_{{loop.index0}}) {% if out["a"] %} {{out["
 \t@echo {{project}} is compiled
 
 {% for out in output %}
+{% if out["bin"] %}
 $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
 \t$(CXX) $(CFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS) $(DEP_LIBS)
+{% endif %}
 {% if out["a"] %}
 {{out["a"]}} : $(OBJS_{{loop.index0}})
 \tar rcs $@ $^
