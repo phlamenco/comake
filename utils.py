@@ -4,6 +4,7 @@ import os
 import sys
 
 import subprocess
+import traceback
 import urllib
 
 
@@ -36,13 +37,15 @@ def GetComake(comake_url, write_path):
             print RedIt("[error]{} doesn't exist".format(comake_url))
             return
         res = f.read()
-    except Exception as e:
-        print RedIt("[error]{} get failed".format(comake_url))
-    else:
+        print res
         print "start writing COMAKE " + write_path
         with codecs.open(write_path, "w", "utf-8") as ff:
-            ff.write(res)
-        print GreenIt("[NOTICE]{} get success".format(comake_url))
+            ff.write(res.decode('utf-8'))
+        print GreenIt("[NOTICE] get {} success".format(comake_url))
+    except Exception as e:
+        os.remove(write_path)
+        traceback.print_exc()
+        print RedIt("[error]{} get failed: ".format(comake_url))
 
 
 def CallCmd(cmd):

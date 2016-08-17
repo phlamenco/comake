@@ -2,6 +2,7 @@
 
 import codecs
 import glob
+import os
 from urlparse import urlparse
 from os import path, makedirs
 import pytoml as toml
@@ -62,7 +63,7 @@ class ComakeParser:
             if url == "file":
                 pass
             else:
-                local_path = [self.comake['repo_root'], url.netloc]
+                local_path = [os.getenv("COMAKEPATH"), url.netloc]
                 local_path.extend([x for x in url.path.split('/') if x])
                 local_path[-1] = local_path[-1].rstrip('.git')
                 repo_path = path.sep.join(local_path)

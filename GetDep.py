@@ -1,4 +1,5 @@
 #encoding=utf-8
+import os
 from threading import Thread
 from urlparse import urlparse, urljoin
 import git
@@ -10,12 +11,12 @@ import urllib
 from ParseComake import ComakeParser
 from utils import RedIt, GreenIt, GetComake
 
-REPO_URL = 'https://raw.githubusercontent.com/boully/repo/master/'
+REPO_URL = 'http://101.200.138.197:8080/comake/'
 
 class DepFetcher:
     def __init__(self, comake):
         self.comake = comake
-        self.root = comake['repo_root']
+        self.root = os.getenv('COMAKEPATH')
         if not path.isdir(self.root):
             makedirs(self.root)
         self.queue = Queue()
@@ -90,9 +91,10 @@ class DepFetcher:
             comake_file = path.sep.join([repo_path, 'COMAKE'])
 
             if not path.exists(comake_file):
-                c_file = local_path[1:]
-                c_file.append('COMAKE')
-                comake_url = urljoin(REPO_URL, "/".join(c_file))
+                #c_file = local_path[1:]
+                #c_file.append('COMAKE')
+                c_file = local_path[-1]
+                comake_url = urljoin(REPO_URL, c_file)
                 print "start fetching " + comake_url
                 GetComake(comake_url, comake_file)
 

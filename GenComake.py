@@ -2,7 +2,6 @@
 from utils import RedIt
 
 COMAKE = u"""project = "helloworld"
-repo_root = "."
 
 CC = "gcc"
 
