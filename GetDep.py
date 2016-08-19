@@ -3,10 +3,11 @@ import os
 from threading import Thread
 from urlparse import urlparse, urljoin
 import git
+import pickle
 from git import Repo
 from os import path, makedirs
 from Queue import Queue, Empty
-import urllib
+import Queue as queue
 
 from ParseComake import ComakeParser
 from utils import RedIt, GreenIt, GetComake
@@ -20,16 +21,21 @@ class DepFetcher:
         if not path.isdir(self.root):
             makedirs(self.root)
         self.queue = Queue()
+        self.stack = []
         self.dep_set = set()
         self.thread = None
+        self.stop = False
+        self.work_num = 4
 
+    def set_work_num(self, num):
+        self.work_num = num
 
     def worker(self):
         while True:
             try:
                 dep = self.queue.get_nowait()
             except Empty:
-                self.queue.task_done()
+
                 break
             else:
                 if dep["uri"] not in self.dep_set:
@@ -43,6 +49,7 @@ class DepFetcher:
                                 continue
                             self.dep_set.add(d["uri"])
                             self.queue.put(d)
+                self.queue.task_done()
 
     def getRepo(self):
         for dep in self.comake["dependency"]:
@@ -53,6 +60,8 @@ class DepFetcher:
         self.thread.start()
         self.thread.join()
         self.queue.join()
+        with open('.comake_deps', "wb") as f:
+            pickle.dump(self.stack, f)
 
     def getOneRepo(self, dep):
         repo = None
@@ -80,13 +89,13 @@ class DepFetcher:
                         tagRepo = repo.tags[dep['tag']]
                         repo.head.reference = tagRepo
                         repo.head.reset(index=True, working_tree=True)
-                    print GreenIt("[NOTICE]{0} ({1}) {2} set success.".format(local_path[-1], dep['tag'], repo_path))
+                    print GreenIt("[NOTICE]{0} ({1}) set success.".format(local_path[-1], dep['tag']))
                 except IndexError:
                     # TODO pull master to get latest tag version
                     print RedIt("[NOTICE]{0} ({1}) {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
 
-            if self.comake['use_local_makefile'] == 1:
-                return []
+            # if self.comake['use_local_makefile'] == 1:
+            #     return []
 
             comake_file = path.sep.join([repo_path, 'COMAKE'])
 
@@ -100,5 +109,6 @@ class DepFetcher:
 
             parser = ComakeParser()
             ret = parser.Parse(comake_file)["dependency"]
-            print GreenIt("[NOTICE]{0} parsed success.".format(comake_file))
+            print GreenIt("[NOTICE]{0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
+            self.stack.append(repo_path)
             return ret

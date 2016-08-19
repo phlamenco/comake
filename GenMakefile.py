@@ -1,4 +1,5 @@
 #encoding=utf-8
+import os
 
 import pytoml as toml
 from jinja2 import Template
@@ -79,7 +80,7 @@ all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% end
 {% if cmd["after"] %}
 \t$(shell {{cmd["after"]}})
 {% endif %}
-\t@echo {{project}} is compiled
+\t@echo [NOTICE]{{project}} compiled success
 
 {% for out in output %}
 {% if out["bin"] %}
@@ -143,13 +144,18 @@ class GenMakefile:
     def __init__(self):
         self.comake = None
         self.template = Template(MAKEFILE)
+        self.root_path = "."
 
     def setComake(self, comake):
         self.comake = comake
 
+    def setPath(self, path):
+        self.root_path = path
+
     def generate(self):
         if self.comake['use_local_makefile'] == 0:
-            with open('Makefile', 'w') as f:
+            file_path = os.path.sep.join([self.root_path, "Makefile"])
+            with open(file_path, 'w') as f:
                 f.write(self.template.render(self.comake))
 
 
