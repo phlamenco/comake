@@ -29,11 +29,11 @@ include_path = "."
 library_path = "."
 
 [[dependency]]
-uri = "https://github.com/gflags/gflags"
+uri = "https://github.com/gflags/gflags.git"
 tag = "v2.1.2"
 [[dependency]]
-uri = ""
-tag = ""
+uri = "https://github.com/google/glog.git"
+tag = "v0.3.4"
 
 [[output]]
 sources = "*.cc *.cpp"

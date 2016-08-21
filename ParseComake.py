@@ -65,7 +65,10 @@ class ComakeParser:
             else:
                 local_path = [os.getenv("COMAKEPATH"), url.netloc]
                 local_path.extend([x for x in url.path.split('/') if x])
-                local_path[-1] = local_path[-1].rstrip('.git')
+                if local_path[-1].endswith('.git'):
+                    local_path[-1] = local_path[-1][0:-4]
+                else:
+                    print RedIt("[error] wrong dependency uri format: {}".format(dep['uri']))
                 repo_path = path.sep.join(local_path)
                 if not path.isdir(repo_path):
                     makedirs(repo_path)

@@ -80,7 +80,7 @@ all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% end
 {% if cmd["after"] %}
 \t$(shell {{cmd["after"]}})
 {% endif %}
-\t@echo [NOTICE]{{project}} compiled success
+\t@echo [NOTICE] {{project}} compiled success
 
 {% for out in output %}
 {% if out["bin"] %}

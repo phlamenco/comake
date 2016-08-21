@@ -7,7 +7,6 @@ import pickle
 from git import Repo
 from os import path, makedirs
 from Queue import Queue, Empty
-import Queue as queue
 
 from ParseComake import ComakeParser
 from utils import RedIt, GreenIt, GetComake
@@ -74,7 +73,10 @@ class DepFetcher:
         else:
             local_path = [self.root, url.netloc]
             local_path.extend([x for x in url.path.split('/') if x])
-            local_path[-1] = local_path[-1].rstrip('.git')
+            if not local_path[-1].endswith('.git'):
+                print RedIt("[error] wrong dependency uri format: {}".format(dep['uri']))
+                return []
+            local_path[-1] = local_path[-1][0:-4]
             repo_path = path.sep.join(local_path)
 
             if not path.isdir(repo_path):
@@ -89,10 +91,10 @@ class DepFetcher:
                         tagRepo = repo.tags[dep['tag']]
                         repo.head.reference = tagRepo
                         repo.head.reset(index=True, working_tree=True)
-                    print GreenIt("[NOTICE]{0} ({1}) set success.".format(local_path[-1], dep['tag']))
+                    print GreenIt("[NOTICE] {0} ({1}) set success.".format(local_path[-1], dep['tag']))
                 except IndexError:
                     # TODO pull master to get latest tag version
-                    print RedIt("[NOTICE]{0} ({1}) {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
+                    print RedIt("[NOTICE] {0} ({1}) {2} set failed as {1} is invalid.".format(local_path[-1], dep['tag'], repo_path))
 
             # if self.comake['use_local_makefile'] == 1:
             #     return []
@@ -109,6 +111,6 @@ class DepFetcher:
 
             parser = ComakeParser()
             ret = parser.Parse(comake_file)["dependency"]
-            print GreenIt("[NOTICE]{0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
+            print GreenIt("[NOTICE] {0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
             self.stack.append(repo_path)
             return ret

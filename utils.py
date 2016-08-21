@@ -27,25 +27,24 @@ def PullRepo(repo, path):
     repo.head.ref = repo.heads.master
     repo.head.reset(index=True, working_tree=True)
     repo.git.reset('--hard','origin/master')
-    print GreenIt("[NOTICE]{0} ({1}) {2} set success.".format(path.split(os.path.sep)[-1], repo.head.ref, path))
+    print GreenIt("[NOTICE] {0} ({1}) {2} set success.".format(path.split(os.path.sep)[-1], repo.head.ref, path))
 
 
 def GetComake(comake_url, write_path):
     try:
         f = urllib.urlopen(comake_url)
         if f.getcode() != 200:
-            print RedIt("[error]{} doesn't exist".format(comake_url))
+            print RedIt("[error] {} doesn't exist".format(comake_url))
             return
         res = f.read()
-        print res
-        print "start writing COMAKE " + write_path
+        print "[NOTICE] start writing COMAKE " + write_path
         with codecs.open(write_path, "w", "utf-8") as ff:
             ff.write(res.decode('utf-8'))
         print GreenIt("[NOTICE] get {} success".format(comake_url))
     except Exception as e:
         os.remove(write_path)
         traceback.print_exc()
-        print RedIt("[error]{} get failed: ".format(comake_url))
+        print RedIt("[error] {} get failed: ".format(comake_url))
 
 
 def CallCmd(cmd):

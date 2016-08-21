@@ -29,14 +29,17 @@ def main():
         print "COMAKEPATH is empty. Please set it first"
         return
     parser = ParseComake.ComakeParser()
+    default_parallel = 4
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hSUFBvd", ["help", "debug", "test"])
+        opts, args = getopt.getopt(sys.argv[1:], "hSUFBvdj:", ["help", "debug", "test"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
+    if "j" in [x for x, _ in opts]:
+        default_parallel = int(opts['j'])
     if len(opts) == 0 and len(args) == 0:
         if not os.path.exists('COMAKE'):
             print "COMAKE doesn't exist"
@@ -74,17 +77,20 @@ def main():
         elif o == "-U":
             if not os.path.exists("COMAKE"):
                 print RedIt("COMAKE doesn't exist")
+                return
             comake = parser.Parse()
             fetcher = DepFetcher(comake)
             fetcher.getRepo()
         elif o == "-B":
             compiler = CompileDep.CompileDep()
-            if compiler.init():
+            if compiler.init(default_parallel):
                 compiler.start()
             else:
                 print RedIt("[ERROR] please execute -U before -B")
         elif o == "--test":
             utils.CallCmd("echo helloworld")
+        elif o == "-j":
+            continue
         else:
             assert False, "invalid argument"
 
