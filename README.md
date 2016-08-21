@@ -35,7 +35,7 @@ it compiles all dependencies that is set in COMAKE file, the dependency version 
 * comake.py
 it generate a Makefile according to the COMAKE file
 
-## Set COMAKE file
+## COMAKE file
 A COMAKE file set many aspects of your project including project name, dependencies, compilers, compiling options and outputs and so on.
 Take gflags's COMAKE as an example:
 ```
@@ -90,6 +90,9 @@ library name, binary file name, dynamic library name and static library name
 * cmd is a configuration for shell script execution before application building and after it's building.
 As for exmaple 'gflag', [before] cmd uses cmake to build gflag dependency and [after] cmd copies output to specified path which will be written
 into generated Makefile
+
+### COMAKE detail
+TODO
 
 ## Note
 The project is inspired by a product of Baidu Inc, but it has nothing relative to the product. The only relation between this product and that from
