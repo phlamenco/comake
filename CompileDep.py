@@ -15,7 +15,8 @@ class CompileDep:
         self.work_num = 1
         #self.root = os.getenv("COMAKEPATH")
         self.stack = None
-        self.queue = Queue.LifoQueue()
+        self.comake = None
+        self.queue = Queue.Queue()
 
     def init(self, work_num = 4):
         if os.path.exists(".comake_deps"):
@@ -39,7 +40,11 @@ class CompileDep:
                 makeGenerator.setPath(path)
                 makeGenerator.setComake(parser.Parse(os.sep.join([path, 'COMAKE'])))
                 makeGenerator.generate()
-                res = utils.CallCmd("cd {0} && make -j4 -s".format(path))
+                if makeGenerator.comake['use_local_makefile'] == 0:
+                    res = utils.CallCmd("cd {0} && make -j4 -s".format(path))
+                else:
+                    res = utils.CallCmd("cd {0} && make -j4 -s -f Makefile.comake".format(path))
+
                 if res[0] == 0:
                     print utils.GreenIt(res[1].strip())
                 else:

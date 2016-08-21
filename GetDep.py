@@ -6,8 +6,9 @@ import git
 import pickle
 from git import Repo
 from os import path, makedirs
-from Queue import Queue, Empty
+from Queue import Queue, Empty, LifoQueue
 
+import utils
 from ParseComake import ComakeParser
 from utils import RedIt, GreenIt, GetComake
 
@@ -20,11 +21,12 @@ class DepFetcher:
         if not path.isdir(self.root):
             makedirs(self.root)
         self.queue = Queue()
-        self.stack = []
+        self.stack = LifoQueue()
         self.dep_set = set()
         self.thread = None
         self.stop = False
         self.work_num = 4
+        self.dep_version = {}
 
     def set_work_num(self, num):
         self.work_num = num
@@ -37,8 +39,12 @@ class DepFetcher:
 
                 break
             else:
+                repo = utils.GetPathFromUri(dep['uri'])
+                if repo:
+                    self.stack.put(repo)
                 if dep["uri"] not in self.dep_set:
                     try:
+                        self.dep_version[dep["uri"]] = dep
                         deps = self.getOneRepo(dep)
                     except Exception as e:
                         print RedIt(e.message)
@@ -59,8 +65,21 @@ class DepFetcher:
         self.thread.start()
         self.thread.join()
         self.queue.join()
+
+        duplicated_dep = set()
+        dep_list = []
+        while True:
+            try:
+                dep = self.stack.get_nowait()
+            except Empty:
+                break
+            else:
+                if dep not in duplicated_dep:
+                    duplicated_dep.add(dep)
+                    dep_list.append(dep)
+
         with open('.comake_deps', "wb") as f:
-            pickle.dump(self.stack, f)
+            pickle.dump(dep_list, f)
 
     def getOneRepo(self, dep):
         repo = None
@@ -112,5 +131,5 @@ class DepFetcher:
             parser = ComakeParser()
             ret = parser.Parse(comake_file)["dependency"]
             print GreenIt("[NOTICE] {0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
-            self.stack.append(repo_path)
+            #self.stack.append(repo_path)
             return ret

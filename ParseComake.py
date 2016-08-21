@@ -49,6 +49,8 @@ class ComakeParser:
                 self.comake = comake
                 if 'use_local_makefile' not in self.comake.keys():
                     self.comake['use_local_makefile'] = 0
+                if 'use_local_copy' not in self.comake.keys():
+                    self.comake['use_local_copy'] = 1
 
             self._parseDepPath()
 
@@ -56,6 +58,7 @@ class ComakeParser:
 
     def _parseDepPath(self):
         deps = self.comake['dependency']
+        ld_flags = []
         for dep in deps:
             if len(dep["uri"]) == 0:
                 continue
@@ -67,6 +70,7 @@ class ComakeParser:
                 local_path.extend([x for x in url.path.split('/') if x])
                 if local_path[-1].endswith('.git'):
                     local_path[-1] = local_path[-1][0:-4]
+                    ld_flags.append("-l" + local_path[-1])
                 else:
                     print RedIt("[error] wrong dependency uri format: {}".format(dep['uri']))
                 repo_path = path.sep.join(local_path)
@@ -78,6 +82,7 @@ class ComakeParser:
         # add dep include and library path into comake
         self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
         self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])
+        self.comake['dep_ld_flags'] = ' \\\n'.join(ld_flags)
 
     def getComake(self):
         return self.comake

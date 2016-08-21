@@ -28,7 +28,7 @@ LFLAGS = {{library_path}}
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS = {{ld_flags}}
+LIBS = {{ld_flags}} {{dep_ld_flags}}
 
 DEP_LIBS = {{dep_library_path}}
 
@@ -68,7 +68,8 @@ before_cmds := $(shell {{cmd["before"]}})
 all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% endif %} {% if out["a"] %} {{out["a"]}} {%endif%} {% endfor %}
 \t$(shell mkdir -p output/include/{{project}} && \
           mkdir -p output/lib && \
-          mkdir -p output/bin && \
+          mkdir -p output/bin \
+          {% if use_local_copy %}&& \
           find . -name "*.h" -o -name '*.hpp' -type f | xargs -I {} cp {} output/include/{{project}} && \
           find . -name "*.a" -o -name '*.so' -type f | xargs -I {} cp {} output/lib/ \
           {% for out in output %} \
@@ -76,6 +77,7 @@ all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% end
           && if [ -x $(BINS_{{loop.index0}}) ]; then mv $(BINS_{{loop.index0}}) output/bin/$(BINS_{{loop.index0}}); fi \
           {% endif %} \
           {% endfor %} \
+          {% endif %} \
           )
 {% if cmd["after"] %}
 \t$(shell {{cmd["after"]}})
@@ -85,7 +87,7 @@ all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% end
 {% for out in output %}
 {% if out["bin"] %}
 $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
-\t$(CXX) $(CFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(LIBS) $(DEP_LIBS)
+\t$(CXX) $(CFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(DEP_LIBS) $(LIBS)
 {% endif %}
 {% if out["a"] %}
 {{out["a"]}} : $(OBJS_{{loop.index0}})
@@ -154,9 +156,13 @@ class GenMakefile:
 
     def generate(self):
         if self.comake['use_local_makefile'] == 0:
-            file_path = os.path.sep.join([self.root_path, "Makefile"])
-            with open(file_path, 'w') as f:
-                f.write(self.template.render(self.comake))
+            file_name = "Makefile"
+        else:
+            file_name = "Makefile.comake"
+
+        file_path = os.path.sep.join([self.root_path, file_name])
+        with open(file_path, 'w') as f:
+            f.write(self.template.render(self.comake))
 
 
 
