@@ -93,13 +93,15 @@ into generated Makefile
 
 ### COMAKE detail
 
-Since COMAKE is new , many projects don't use it as a build tool, then if a dependency that specified in your COMAKE file does't have a COMAKE file, what will happend?
+Since COMAKE is new , many projects don't use it as a build tool, then if a dependency that specified in your COMAKE file does't have a COMAKE, what will happend?
 
-By design, when a dependency is downloaded, comake trys to find it's COMAKE file. If the file is found, comake parses it, else comake will download a corresponding COMAKE file according to it's uri from a website. The website address is [http://beautifuldocument.com:8080/](http://beautifuldocument.com:8080/). 
-The website is just a temporary way to retrieve other people's COMAKE file that belongs to one specific git project which COMAKE file is not provided by default. So comake is a system that is promoted by sharing and opening. 
+By design, when a dependency is downloaded, comake trys to find it's COMAKE. If the file is found, comake parses it, otherwise comake will download a corresponding COMAKE file according to it's uri from a website. The website address is [http://beautifuldocument.com:8080/](http://beautifuldocument.com:8080/). 
+It is just a temporary way to retrieve other people's COMAKE file that belongs to one specific git project which COMAKE file is not provided by default. 
+
+Comake is a system that is promoted by sharing and opening. 
 
 What about dependency conflict?
-This problem is solved by an engineering approach other than an academic approach. If we have a dependency tree as follows:
+This problem is solved by an engineering approach other than an academic approach. For instance, following is a dependency tree:
 ```
   L1                    A
   L2                  /   \
