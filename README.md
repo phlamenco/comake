@@ -92,7 +92,28 @@ As for exmaple 'gflag', [before] cmd uses cmake to build gflag dependency and [a
 into generated Makefile
 
 ### COMAKE detail
-TODO
+
+Since COMAKE is new , many projects don't use it as a build tool, then if a dependency that specified in your COMAKE file does't have a COMAKE file, what will happend?
+
+By design, when a dependency is downloaded, comake trys to find it's COMAKE file. If the file is found, comake parses it, else comake will download a corresponding COMAKE file according to it's uri from a website. The website address is [http://beautifuldocument.com:8080/](http://beautifuldocument.com:8080/). 
+The website is just a temporary way to retrieve other people's COMAKE file that belongs to one specific git project which COMAKE file is not provided by default. So comake is a system that is promoted by sharing and opening. 
+
+What about dependency conflict?
+This problem is solved by an engineering approach other than an academic approach. If we have a dependency tree as follows:
+
+  L1                    A
+  L2                  /   \
+  L3                 B     C
+  L4                / \   /  \
+  L5              C    D E    D
+  
+comake have two rules to solve above dependency problem:
+* rule1: if A belongs to L[M] and L[N] at the same time, then comake use A that belongs to L[min(M, N)]
+* rule2: if M == N, the first one that occurred to comake will be chosen
+For example, in the above dependency tree, C belongs to L2 and L3, then comake will choose C in L2. And let's consider D that both of it belong to L5, since the sequence of comake parseing dependency, the D that is a child of B will be chosen.
+
+The sequence of parsing dependency in comake
+As in the dependency tree above, comake parses dedenpency from L1, L2 ... to LN, and in one level L[K], comake parses from left to right.
 
 ## Note
 The project is inspired by a product of Baidu Inc, but it has nothing relative to the product. The only relation between this product and that from
