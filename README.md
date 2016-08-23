@@ -113,7 +113,7 @@ comake have two rules to solve above dependency problem:
 * rule1: if A belongs to L[M] and L[N] at the same time, then comake use A that belongs to L[min(M, N)]
 * rule2: if M == N, the first one that occurred to comake will be chosen
 
-For example, in the above dependency tree, C belongs to L2 and L3, then comake will choose C in L2. And let's consider D that both of it belong to L5, since the sequence of comake parseing dependency, the D that is a child of B will be chosen.
+In the above dependency tree, C belongs to L2 and L3, then comake will choose C in L2. And let's consider D that both of it belong to L5, since the sequence of comake parseing dependency, the D that is a child of B will be chosen.
 
 The sequence of parsing dependency in comake
 As in the dependency tree above, comake parses dedenpency from L1, L2 ... to LN, and in one level L[K], comake parses from left to right.
