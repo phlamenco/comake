@@ -100,13 +100,13 @@ The website is just a temporary way to retrieve other people's COMAKE file that 
 
 What about dependency conflict?
 This problem is solved by an engineering approach other than an academic approach. If we have a dependency tree as follows:
-
+```
   L1                    A
   L2                  /   \
   L3                 B     C
   L4                / \   /  \
   L5              C    D E    D
-  
+```  
 comake have two rules to solve above dependency problem:
 * rule1: if A belongs to L[M] and L[N] at the same time, then comake use A that belongs to L[min(M, N)]
 * rule2: if M == N, the first one that occurred to comake will be chosen
