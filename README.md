@@ -18,10 +18,9 @@ Since comake simplifies the process of the dependencies' and your main applicati
 * [pytoml](https://github.com/avakar/pytoml)
 
 ## Install
-1. git clone this repo
-2. add the root path of this repo to environment varible PYTHONPATH and PATH
-3. set COMAKEPATH environment varible to your project path
-4. type 'comake.py -v' to test whether installation is success or not
+1. pip install comake
+2. set COMAKEPATH environment varible to your project path
+3. type 'comake.py -v' to test whether installation is success or not
 
 ## Basic usage
 Basically, comake is a command line tool which has several options to act different functions as follows:
