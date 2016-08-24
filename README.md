@@ -26,13 +26,13 @@ Since comake simplifies the process of the dependencies' and your main applicati
 ## Basic usage
 Basically, comake is a command line tool which has several options to act different functions as follows:
 
-* comake.py -S
+* ```comake.py -S```
 it generates a COMAKE file which is the core configuration file of comake
-* comake.py -U
+* ```comake.py -U```
 it fetchs dependencies and switch them to specified version that is set in COMAKE file
-* comake.py -B
+* ```comake.py -B```
 it compiles all dependencies that is set in COMAKE file, the dependency version is not changed
-* comake.py
+* ```comake.py```
 it generate a Makefile according to the COMAKE file
 
 ## COMAKE file
