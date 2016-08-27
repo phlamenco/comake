@@ -10,4 +10,9 @@ setup(
     download_url = 'https://github.com/boully/comake/tarball/v0.1.0', # I'll explain this in a second
     keywords = ['c++', 'auto-build', 'dependency'], # arbitrary keywords
     classifiers = [],
+    install_requires=[
+        GitPython,
+        pytoml,
+        Jinja2,
+    ],
 )
