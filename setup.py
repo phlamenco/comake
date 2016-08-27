@@ -1,18 +1,21 @@
-from distutils.core import setup
-setup(
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+    setup(
     name = 'comake',
     packages = ['comake'], # this must be the same as the name above
-    version = 'v0.1.0',
+    version = 'v0.1.1',
     description = 'A c++ build tool',
     author = 'liaosiwei',
     author_email = 'liaosiwei@163.com',
     url = 'https://github.com/boully/comake', # use the URL to the github repo
-    download_url = 'https://github.com/boully/comake/tarball/v0.1.0', # I'll explain this in a second
+    download_url = 'https://github.com/boully/comake/tarball/v0.1.1', # I'll explain this in a second
     keywords = ['c++', 'auto-build', 'dependency'], # arbitrary keywords
     classifiers = [],
     install_requires=[
-        GitPython,
-        pytoml,
-        Jinja2,
+        "GitPython",
+        "pytoml",
+        "Jinja2",
     ],
 )
