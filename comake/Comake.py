@@ -1,4 +1,3 @@
-#!/Users/Siwei/env1/bin/python
 import codecs
 import getopt
 import sys
