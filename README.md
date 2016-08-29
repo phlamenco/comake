@@ -20,7 +20,7 @@ Since comake simplifies the process of the dependencies' and your main applicati
 ## Install
 1. pip install comake
 2. set COMAKEPATH environment varible to your project path
-3. type 'comake.py -v' to test whether installation is success or not
+3. type 'comake -v' to test whether installation is success or not
 
 ## Basic usage
 Basically, comake is a command line tool which has several options to act different functions as follows:
