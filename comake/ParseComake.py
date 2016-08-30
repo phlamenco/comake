@@ -58,6 +58,7 @@ class ComakeParser:
 
     def _parseDepPath(self):
         deps = self.comake['dependency']
+        static_ld_flags = []
         ld_flags = []
         for dep in deps:
             if len(dep["uri"]) == 0:
@@ -70,7 +71,10 @@ class ComakeParser:
                 local_path.extend([x for x in url.path.split('/') if x])
                 if local_path[-1].endswith('.git'):
                     local_path[-1] = local_path[-1][0:-4]
-                    ld_flags.append("-l" + local_path[-1])
+                    if 'use_static' in dep.keys() and dep["use_static"] == 1:
+                        static_ld_flags.append("-l" + local_path[-1])
+                    else:
+                        ld_flags.append("-l" + local_path[-1])
                 else:
                     print RedIt("[error] wrong dependency uri format: {}".format(dep['uri']))
                 repo_path = path.sep.join(local_path)
@@ -83,6 +87,10 @@ class ComakeParser:
         self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
         self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])
         self.comake['dep_ld_flags'] = ' \\\n'.join(ld_flags)
+        if len(static_ld_flags) != 0:
+            static_ld_flags.insert(0, " -Wl,-Bstatic")
+            static_ld_flags.append("-Wl,-Bdynamic")
+            self.comake['dep_ld_flags'] += ' \\\n'.join(static_ld_flags)
 
     def getComake(self):
         return self.comake

@@ -31,6 +31,7 @@ tag = "v2.1.2"
 [[dependency]]
 uri = "https://github.com/google/glog.git"
 tag = "v0.3.4"
+use_static = 1
 
 [[output]]
 sources = "*.cc *.cpp"

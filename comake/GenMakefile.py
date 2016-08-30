@@ -87,7 +87,7 @@ all:    {% for out in output %} {% if out["bin"] %}$(BINS_{{loop.index0}}){% end
 {% for out in output %}
 {% if out["bin"] %}
 $(BINS_{{loop.index0}}): $(OBJS_{{loop.index0}})
-\t$(CXX) $(CFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(DEP_LIBS) $(LIBS)
+\t$(CXX) $(CPPFLAGS) $(INCLUDES) $(DEP_INCLUDES) -o $(BINS_{{loop.index0}}) $(OBJS_{{loop.index0}}) $(LFLAGS) $(DEP_LIBS) $(LIBS)
 {% endif %}
 {% if out["a"] %}
 {{out["a"]}} : $(OBJS_{{loop.index0}})
