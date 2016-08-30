@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 setup(
     name = 'comake',
     packages=find_packages(), # this must be the same as the name above
-    version = 'v0.1.5',
+    version = 'v0.1.6',
     description = 'A c++ build tool',
     author = 'liaosiwei',
     author_email = 'liaosiwei@163.com',
     url = 'https://github.com/boully/comake',
-    download_url = 'https://github.com/boully/comake/tarball/v0.1.3',
+    download_url = 'https://github.com/boully/comake/tarball/v0.1.6',
     keywords = ['c++', 'auto-build', 'dependency'],
     classifiers = [
         'Development Status :: 3 - Alpha',
