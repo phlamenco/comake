@@ -55,9 +55,6 @@ class DepFetcher:
                             if len(d["uri"]) == 0:
                                 continue
                             self.queue.put(d)
-                else:
-                    print dep["uri"]
-                                
                 self.queue.task_done()
 
     def getRepo(self):
