@@ -42,9 +42,11 @@ class DepFetcher:
                 repo = utils.GetPathFromUri(dep['uri'])
                 if repo:
                     self.stack.put(repo)
+
                 if dep["uri"] not in self.dep_set:
                     try:
                         self.dep_version[dep["uri"]] = dep
+                        self.dep_set.add(dep["uri"])
                         deps = self.getOneRepo(dep)
                     except Exception as e:
                         print RedIt(e.message)
@@ -52,8 +54,10 @@ class DepFetcher:
                         for d in deps:
                             if len(d["uri"]) == 0:
                                 continue
-                            self.dep_set.add(d["uri"])
                             self.queue.put(d)
+                else:
+                    print dep["uri"]
+                                
                 self.queue.task_done()
 
     def getRepo(self):
@@ -86,9 +90,14 @@ class DepFetcher:
         if len(dep["uri"]) == 0:
             return {}
         url = urlparse(dep["uri"])
-        if url == "file":
-            #TODO
-            return {}
+        if url.scheme == u"file":
+            #TODO use local file
+            repo_path = path.sep.join([self.root, url.netloc, url.path]);
+            local_path = url.path.split(os.path.sep)
+            if path.exists(repo_path):
+                print GreenIt("[NOTICE] find local repo success: " + repo_path)
+            else:
+                print RedIt("[ERROR] find local repo failed: " + dep["uri"])
         else:
             local_path = [self.root, url.netloc]
             local_path.extend([x for x in url.path.split('/') if x])
@@ -118,18 +127,18 @@ class DepFetcher:
             # if self.comake['use_local_makefile'] == 1:
             #     return []
 
-            comake_file = path.sep.join([repo_path, 'COMAKE'])
+        comake_file = path.sep.join([repo_path, 'COMAKE'])
 
-            if not path.exists(comake_file):
-                #c_file = local_path[1:]
-                #c_file.append('COMAKE')
-                c_file = local_path[-1]
-                comake_url = urljoin(REPO_URL, c_file)
-                print "start fetching " + comake_url
-                GetComake(comake_url, comake_file)
+        if not path.exists(comake_file):
+            #c_file = local_path[1:]
+            #c_file.append('COMAKE')
+            c_file = local_path[-1]
+            comake_url = urljoin(REPO_URL, c_file)
+            print "start fetching " + comake_url
+            GetComake(comake_url, comake_file)
 
-            parser = ComakeParser()
-            ret = parser.Parse(comake_file)["dependency"]
-            print GreenIt("[NOTICE] {0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
-            #self.stack.append(repo_path)
-            return ret
+        parser = ComakeParser()
+        ret = parser.Parse(comake_file)["dependency"]
+        print GreenIt("[NOTICE] {0} ({1}) parsed success.".format(local_path[-1], dep['tag']))
+        #self.stack.append(repo_path)
+        return ret

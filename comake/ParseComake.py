@@ -64,25 +64,27 @@ class ComakeParser:
             if len(dep["uri"]) == 0:
                 continue
             url = urlparse(dep["uri"])
-            if url == "file":
-                pass
+            if url.scheme == u"file":
+                repo_path = path.sep.join([os.getenv("COMAKEPATH"), url.netloc, url.path]);
+                local_path = url.path.split(os.path.sep)
             else:
                 local_path = [os.getenv("COMAKEPATH"), url.netloc]
                 local_path.extend([x for x in url.path.split('/') if x])
-                if local_path[-1].endswith('.git'):
-                    local_path[-1] = local_path[-1][0:-4]
-                    if 'use_static' in dep.keys() and dep["use_static"] == 1:
-                        static_ld_flags.append("-l" + local_path[-1])
-                    else:
-                        ld_flags.append("-l" + local_path[-1])
-                else:
+                if not local_path[-1].endswith('.git'):
                     print RedIt("[error] wrong dependency uri format: {}".format(dep['uri']))
+                    continue
+                local_path[-1] = local_path[-1][0:-4]
                 repo_path = path.sep.join(local_path)
-                if not path.isdir(repo_path):
-                    makedirs(repo_path)
-                self.repo_path_dict[repo_path] = dep['uri']
-                self.dep_include_list.append(path.sep.join([repo_path, 'output', 'include']))
-                self.dep_library_list.append(path.sep.join([repo_path, 'output', 'lib']))
+            if 'use_static' in dep.keys() and dep["use_static"] == 1:
+                static_ld_flags.append("-l" + local_path[-1])
+            else:
+                ld_flags.append("-l" + local_path[-1])
+
+            if not path.isdir(repo_path):
+                makedirs(repo_path)
+            self.repo_path_dict[repo_path] = dep['uri']
+            self.dep_include_list.append(path.sep.join([repo_path, 'output', 'include']))
+            self.dep_library_list.append(path.sep.join([repo_path, 'output', 'lib']))
         # add dep include and library path into comake
         self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
         self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])

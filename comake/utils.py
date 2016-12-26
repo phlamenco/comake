@@ -2,6 +2,7 @@
 import codecs
 import os
 import sys
+from os import path
 
 import subprocess
 import traceback
@@ -63,11 +64,14 @@ def CallCmd(cmd):
 
 def GetPathFromUri(uri):
     url = urlparse(uri)
-    local_path = [os.getenv("COMAKEPATH"), url.netloc]
-    local_path.extend([x for x in url.path.split('/') if x])
-    if local_path[-1].endswith('.git'):
-        local_path[-1] = local_path[-1][0:-4]
-        return os.path.sep.join(local_path)
+    if url.scheme == u"file":
+        return path.sep.join([url.netloc, url.path])
     else:
-        print RedIt("[error] wrong dependency uri format: {}".format(uri))
-        return None
+        local_path = [os.getenv("COMAKEPATH"), url.netloc]
+        local_path.extend([x for x in url.path.split('/') if x])
+        if local_path[-1].endswith('.git'):
+            local_path[-1] = local_path[-1][0:-4]
+            return os.path.sep.join(local_path)
+        else:
+            print RedIt("[error] wrong' dependency uri format: {}".format(uri))
+            return None
