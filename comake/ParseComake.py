@@ -75,24 +75,26 @@ class ComakeParser:
                     continue
                 local_path[-1] = local_path[-1][0:-4]
                 repo_path = path.sep.join(local_path)
-            if 'use_static' in dep.keys() and dep["use_static"] == 1:
-                static_ld_flags.append("-l" + local_path[-1])
-            else:
-                ld_flags.append("-l" + local_path[-1])
-
+            # if 'use_static' in dep.keys() and dep["use_static"] == 1:
+            #     static_ld_flags.append("-l" + local_path[-1])
+            # else:
+            #     ld_flags.append("-l" + local_path[-1])
+            lib_name = "lib" + local_path[-1] + ".a"
             if not path.isdir(repo_path):
                 makedirs(repo_path)
             self.repo_path_dict[repo_path] = dep['uri']
             self.dep_include_list.append(path.sep.join([repo_path, 'output', 'include']))
-            self.dep_library_list.append(path.sep.join([repo_path, 'output', 'lib']))
+            self.dep_library_list.append(path.sep.join([repo_path, 'output', 'lib', lib_name]))
         # add dep include and library path into comake
         self.comake['dep_include_path'] = ' \\\n'.join(['-I' + s for s in self.dep_include_list])
-        self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])
+        # self.comake['dep_library_path'] = ' \\\n'.join(['-L' + s for s in self.dep_library_list])
+        self.comake['dep_library_path'] = ' \\\n'.join(self.dep_library_list)
+        self.comake['dep_library_path'] = '-Xlinker "-("' + self.comake['dep_library_path'] + '-Xlinker "-)"\n'
         self.comake['dep_ld_flags'] = ' \\\n'.join(ld_flags)
-        if len(static_ld_flags) != 0:
-            static_ld_flags.insert(0, " -Wl,-Bstatic")
-            static_ld_flags.append("-Wl,-Bdynamic")
-            self.comake['dep_ld_flags'] += ' \\\n'.join(static_ld_flags)
+        # if len(static_ld_flags) != 0:
+        #     static_ld_flags.insert(0, " -Wl,-Bstatic")
+        #     static_ld_flags.append("-Wl,-Bdynamic")
+        #     self.comake['dep_ld_flags'] += ' \\\n'.join(static_ld_flags)
 
     def getComake(self):
         return self.comake
